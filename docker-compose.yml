@@ -1,0 +1,33 @@
+services:
+  printvault:
+    # 改成你的 Docker Hub 命名空间；保留 build 时 `docker compose build` 会直接产出该名字的镜像，
+    # 之后 `docker compose push` 即可发布。只想用已发布的镜像时删掉下面 build 那一行。
+    image: feitianzzo/printvault:latest
+    build: .
+    container_name: printvault
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./data:/data
+    environment:
+      # 启用下方 whisper 服务后取消注释，实现录音离线转写：
+      # WHISPER_URL: http://whisper:9000
+      LOG_LEVEL: info
+    restart: unless-stopped
+
+  # 可选：本地语音转写服务（faster-whisper）。
+  # 启动：docker compose --profile whisper up -d
+  # 同时把上方 WHISPER_URL 环境变量取消注释并重启 printvault。
+  whisper:
+    image: onerahmet/openai-whisper-asr-webservice:latest
+    container_name: printvault-whisper
+    profiles: ["whisper"]
+    environment:
+      ASR_MODEL: small
+      ASR_ENGINE: faster_whisper
+    volumes:
+      - whisper-cache:/root/.cache
+    restart: unless-stopped
+
+volumes:
+  whisper-cache:
