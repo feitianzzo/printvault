@@ -30,7 +30,7 @@ const fileInput = ref<HTMLInputElement>()
 let itemId = 1
 
 function formatOf(file: File): string {
-  const m = /\\.([a-z0-9]+)$/i.exec(file.name)
+  const m = /\.([a-z0-9]+)$/i.exec(file.name)
   const ext = (m?.[1] || '').toLowerCase()
   return ext === 'stp' ? 'step' : ext || 'other'
 }
@@ -42,7 +42,7 @@ function addFiles(list: FileList | File[] | null): void {
     items.value.push({ id: itemId++, file, status: 'pending', progress: 0, message: '' })
   }
   if (!name.value && arr.length > 0 && !props.modelId) {
-    name.value = arr[0].name.replace(/\\.[^.]+$/, '')
+    name.value = arr[0].name.replace(/\.[^.]+$/, '')
   }
 }
 
