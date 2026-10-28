@@ -1,0 +1,19 @@
+{
+  "name": "printvault",
+  "version": "0.1.0",
+  "private": true,
+  "description": "印库 PrintVault — 自托管 3D 打印模型管理系统",
+  "workspaces": [
+    "server",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,green \"npm:dev -w server\" \"npm:dev -w frontend\"",
+    "build": "npm run build -w frontend && npm run build -w server",
+    "start": "node server/dist/index.js",
+    "typecheck": "npm run typecheck -w server && npm run typecheck -w frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
