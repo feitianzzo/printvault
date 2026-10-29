@@ -44,51 +44,33 @@ docker run -d --name printvault \
 
 ## 发布镜像到 Docker Hub
 
-首次发布前，把以下文件里的 `feitianzzo` 替换成你的 Docker Hub 用户名：
+镜像已由 GitHub Actions 自动构建并发布到 [Docker Hub](https://hub.docker.com/r/feitianzzo/printvault)：
 
-- `docker-compose.yml` 的 `image:`
-- `Dockerfile` 里的 `org.opencontainers.image.url` / `source` 标签
-- `.github/workflows/docker-publish.yml` 无需改（用仓库 Secrets 里的用户名）
+| Tag | 含义 |
+| --- | --- |
+| `feitianzzo/printvault:latest` | `main` 分支最新构建 |
+| `feitianzzo/printvault:sha-xxxxxxx` | 每个提交对应的不可变构建 |
+| `feitianzzo/printvault:<版本>` | 推送 `v*.*.*` tag 时发布的语义化版本 |
 
-### 方式一：本机直接推送
+流水线构建 `linux/amd64` 与 `linux/arm64` 双架构（群晖 / 树莓派等 ARM 设备可直接用）。
+推送 `v1.2.3` 形式的 tag（或在 GitHub 上发布同名 Release）会额外发布 `1.2.3` 与 `1.2` 标签；也可以在 Actions 页面手动触发。
 
-需要本机已安装 Docker 并登录（`docker login`）：
+### 配置发布凭据（fork 后自建镜像时需要）
 
-```bash
-# 一条命令完成构建 + 打标签 + 推送（Git Bash / WSL / Linux / macOS）
-./scripts/docker-publish.sh 你的DockerHub用户名 1.0.0
-```
-
-或手动执行：
-
-```bash
-# 构建（compose 会把镜像打成 feitianzzo/printvault:latest）
-docker compose build
-
-# 打版本标签（可选）
-docker tag feitianzzo/printvault:latest feitianzzo/printvault:1.0.0
-
-# 推送
-docker compose push
-docker push feitianzzo/printvault:1.0.0
-
-# 仅本次构建多架构镜像并推送（需要 buildx，arm64 在本机需 QEMU）
-docker buildx build --platform linux/amd64,linux/arm64 \
-  -t feitianzzo/printvault:latest --push .
-```
-
-### 方式二：GitHub Actions 自动发布（推荐）
-
-仓库已包含 [.github/workflows/docker-publish.yml](.github/workflows/docker-publish.yml)，
-推送到 GitHub 后在仓库 **Settings → Secrets and variables → Actions** 添加两个 Secret：
+仓库 **Settings → Secrets and variables → Actions** 中添加：
 
 | Secret | 值 |
 | --- | --- |
 | `DOCKERHUB_USERNAME` | 你的 Docker Hub 用户名 |
-| `DOCKERHUB_TOKEN` | Docker Hub → Account settings → Security → New Access Token |
+| `DOCKERHUB_TOKEN` | Docker Hub → Account settings → Security → New Access Token（Read & Write） |
 
-之后：push 到 `main` 自动发布 `latest` + `sha-xxxx` 标签；推送 `v1.2.3` 形式的 tag 额外发布 `1.2.3` / `1.2` 标签；
-也可在 Actions 页面手动触发。流水线自动构建 amd64 + arm64 双架构。
+### 本地手动发布（可选）
+
+需要本机已安装 Docker 并执行过 `docker login`：
+
+```bash
+./scripts/docker-publish.sh 你的DockerHub用户名 1.0.0
+```
 
 ### 启用语音转写（可选）
 
